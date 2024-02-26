@@ -24,7 +24,15 @@ class HkexspiderSpider(scrapy.Spider):
 
     def parse(self, response):
         print("*******************")
+        rows = response.css('tbody tr')
+        print(rows)
+        print("*********")
+        for row in rows:
+            # td = row.css("td.text-right.text-end.release-time ::text").get()
+            stock_code = row.css('td.text-right.text-end.stock-short-code::text').get().strip()
+            print(stock_code)
         # print(response.css('td.mobile-list-heading::text').get())
-        print(response.css('tbody tr').get())
-        #print(response.xpath("//tr[@role='row;]"))
+        # print(response.css('tbody tr').get())
+        # print(response.xpath("//tr[@role='row']").get())
+        # print(t_table)
         print("*******************")

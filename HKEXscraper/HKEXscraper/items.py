@@ -9,4 +9,6 @@ import scrapy
 class HkexscraperItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
-    pass
+    stock_code = scrapy.Field()
+    release_time = scrapy.Field()
+    document = scrapy.Field()
