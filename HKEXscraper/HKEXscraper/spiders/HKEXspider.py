@@ -29,8 +29,12 @@ class HkexspiderSpider(scrapy.Spider):
         print("*********")
         for row in rows:
             # td = row.css("td.text-right.text-end.release-time ::text").get()
-            stock_code = row.css('td.text-right.text-end.stock-short-code::text').get().strip()
+            stock_code = row.css('td.text-right.text-end.stock-short-code::text').get()
             print(stock_code)
+            release_time = row.css('td.release-time::text').getall()[1]
+            print(release_time)
+            document_name = row.css('td div.headline::text').get()
+            print(document_name)
         # print(response.css('td.mobile-list-heading::text').get())
         # print(response.css('tbody tr').get())
         # print(response.xpath("//tr[@role='row']").get())
