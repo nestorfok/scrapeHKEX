@@ -12,7 +12,11 @@ BOT_NAME = "HKEXscraper"
 SPIDER_MODULES = ["HKEXscraper.spiders"]
 NEWSPIDER_MODULE = "HKEXscraper.spiders"
 
+FEEDS = {
+    'stockESGReportDate.csv': {'format': 'csv'}
+}
 
+FEED_EXPORT_FIELDS = ['stock_code', 'release_date', 'document_name']
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = "HKEXscraper (+http://www.yourdomain.com)"
 
@@ -62,9 +66,9 @@ ROBOTSTXT_OBEY = False
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    "HKEXscraper.pipelines.HkexscraperPipeline": 300,
-#}
+ITEM_PIPELINES = {
+   "HKEXscraper.pipelines.HkexscraperPipeline": 300,
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html

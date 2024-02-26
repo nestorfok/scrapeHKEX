@@ -10,5 +10,6 @@ class HkexscraperItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
     stock_code = scrapy.Field()
-    release_time = scrapy.Field()
-    document = scrapy.Field()
+    release_date = scrapy.Field()
+    document_name = scrapy.Field()
+    # release_date = scrapy.Field()
