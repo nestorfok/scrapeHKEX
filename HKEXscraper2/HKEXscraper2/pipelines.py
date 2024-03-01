@@ -28,7 +28,7 @@ class Hkexscraper2Pipeline:
         string_year = ','.join(year)
 
         if "2017" in string_year:
-            adapter['ESG_2017_rel_date'] = 'True'
+            adapter['ESG_2017_rel_date'] = release_date
         elif '2018' in string_year:
             adapter['ESG_2018_rel_date'] = release_date
         elif '2019' in string_year:
