@@ -18,14 +18,14 @@ class Hkexspider2Spider(scrapy.Spider):
             'market': "SEHK",
             'stockId': '-1',
             'documentType': "-1",
-            'fromDate':"20230122",
+            'fromDate':"20230522",
             'toDate':"20230826",
             'title': "",
             'searchType': "1",
             't1code': "40000",
             't2Gcode': "-2",
             't2code': "40400",
-            'rowRange': "50",
+            'rowRange': "100",
             'lang': "E"
         }
 
@@ -38,6 +38,13 @@ class Hkexspider2Spider(scrapy.Spider):
         for item in result_list:
             row = Hkexscraper2Item()
             row['stock_code'] = item['STOCK_CODE']
+            row['ESG_2017_rel_date'] = 'NA'
+            row['ESG_2018_rel_date'] = 'NA'
+            row['ESG_2019_rel_date'] = 'NA'
+            row['ESG_2020_rel_date'] = 'NA'
+            row['ESG_2021_rel_date'] = 'NA'
+            row['ESG_2022_rel_date'] = 'NA'
+            row['ESG_2023_rel_date'] = 'NA'
             row['release_date'] = item['DATE_TIME']
             row['document_name'] = item['TITLE']
 

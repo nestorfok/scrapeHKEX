@@ -16,7 +16,9 @@ FEEDS = {
     'stockESGReportDate2.csv': {'format': 'csv'}
 }
 
-FEED_EXPORT_FIELDS = ['stock_code', 'release_date', 'document_name']
+FEED_EXPORT_FIELDS = ['stock_code', 'ESG_2017_rel_date', 'ESG_2018_rel_date', 
+'ESG_2019_rel_date', 'ESG_2020_rel_date', 'ESG_2021_rel_date', 
+'ESG_2022_rel_date', 'ESG_2023_rel_date', 'release_date', 'document_name']
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = "HKEXscraper2 (+http://www.yourdomain.com)"
