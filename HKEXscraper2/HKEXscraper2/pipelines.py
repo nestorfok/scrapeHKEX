@@ -14,7 +14,7 @@ class Hkexscraper2Pipeline:
         adapter = ItemAdapter(item)
         
         stock_code = adapter.get('stock_code')
-        adapter['stock_code'] = stock_code[1:] + ".HK"
+        adapter['stock_code'] = stock_code + ".HK"
 
         # Save the release date
         release_date = adapter.get('release_date')
