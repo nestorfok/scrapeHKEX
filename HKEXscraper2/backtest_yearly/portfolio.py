@@ -20,11 +20,13 @@ class Portfolio:
         self.cur_day = None
 
         # Stock Account
+        self.init_cap = init_cap
         self.balance = init_cap # 100,000,000
         self.portfolios = []
         self.buy_orders = []
         self.sell_orders = []
         self.transactions = []
+        self.daily_pls = []
 
     def get_balance(self):
         return self.balance
@@ -41,14 +43,17 @@ class Portfolio:
     def get_transactions(self):
         return self.transactions
     
-    def get_stock_data(self, ticket, start, end):
-        stock_data = yf.download(ticket, start=start, end=end)
+    def get_daily_pls(self):
+        return self.daily_pls
+    
+    def get_stock_data(self, ticker, start, end):
+        stock_data = yf.download(ticker, start=start, end=end)
         return stock_data.index[0].date(), stock_data.iloc[0]['Close']
 
 
     def strategy(self):
-        start_date = datetime.datetime(2017, 4, 5).date()
-        end_date = datetime.datetime(2017,8,31).date()
+        start_date = datetime.datetime(2018, 1, 1).date()
+        end_date = datetime.datetime(2018,12,31).date()
         self.cur_day = start_date
         report_cols = self.report.columns.values.tolist()
         while self.cur_day != end_date:
@@ -60,6 +65,13 @@ class Portfolio:
                         if year == 2017:
                             try:
                                 score = self.score_2017.loc[self.score_2017['file_name'] == stock_code]['positive'].values[0]
+                                # print(stock_code, row[col].date(), year, score)
+                                self.longShort(stock_code, row[col].date(), score)
+                            except:
+                                pass
+                        if year == 2018:
+                            try:
+                                score = self.score_2018.loc[self.score_2018['file_name'] == stock_code]['positive'].values[0]
                                 # print(stock_code, row[col].date(), year, score)
                                 self.longShort(stock_code, row[col].date(), score)
                             except:
@@ -94,101 +106,68 @@ class Portfolio:
             self.portfolios = [portfolio for portfolio in self.portfolios if portfolio not in rm_portoflio]
             self.buy_orders = [buy_order for buy_order in self.buy_orders if buy_order not in rm_buy_order]
             self.sell_orders = [sell_order for sell_order in self.sell_orders if sell_order not in rm_sell_order]
-        
-            self.cur_day += datetime.timedelta(days=1)
-            #time.sleep(0.0005)
 
-    def long(self, ticket, buy_date, buy_share_price, sell_date, sell_share_price):
-        if len(self.portfolios) < 10:
+            self.cal_daily_pl()
+
+            self.cur_day += datetime.timedelta(days=1)
+            # print(self.cur_day)
+
+    def long(self, ticker, buy_date, buy_share_price, sell_date, sell_share_price):
+        if len(self.portfolios) < self.size:
             divisor = (self.size - len(self.portfolios))
             buy_amount = int((self.balance / divisor) / buy_share_price)
 
             # attach order
-            buy_order = {"ticket": ticket, "date": buy_date, "amount": buy_amount * buy_share_price, "buy": True}
-            sell_order = {"ticket": ticket, "date": sell_date, "amount": buy_amount * sell_share_price, "buy": False}
+            buy_order = {"ticker": ticker, "date": buy_date, "amount": buy_amount * buy_share_price, "buy": True}
+            sell_order = {"ticker": ticker, "date": sell_date, "amount": buy_amount * sell_share_price, "buy": False}
             self.buy_orders.append(buy_order)
             self.sell_orders.append(sell_order)
 
             # add to portfolio
-            new_portfolio = {"ticket": ticket, "buy_date": buy_date, "sell_date": sell_date, "long": True}
+            new_portfolio = {"ticker": ticker, "buy_date": buy_date, "sell_date": sell_date, "buy_amount": buy_amount, "long": True}
             self.portfolios.append(new_portfolio)
             
-            # self.init_cap -= buy_amount
-            #new_portfolio = {"ticket": ticket, "buy_date": buy_date, "amount": buy_amount, "long": True, "sell_date": }
-            # new_transaction = {"no": len(self.transactions), "ticket": ticket, "stra": "long", "date": buy_date, "amount": "-" + str(buy_amount), "remaining_capital": str(self.init_cap)}
-            # self.portfolios.append(new_portfolio)
-            # self.transactions.append(new_transaction)
-        else:
-            pass
-
-    def daily_pl (self):
+    def cal_daily_pl(self):
         try:
-            pass
+            cash_balance = self.balance
+            stock_balance = 0
+            for portfolio in self.portfolios:
+                if portfolio["long"] is True:
+                    if portfolio["buy_date"] <= self.cur_day:
+                        date, share_price = self.get_stock_data(portfolio["ticker"], self.cur_day, self.cur_day + datetime.timedelta(days=1))
+                        stock_balance += share_price * portfolio["buy_amount"]
+            daily_pl = {"date": self.cur_day, "pl": (cash_balance + stock_balance) - self.init_cap, "balance": cash_balance + stock_balance}
+            self.daily_pls.append(daily_pl)
         except:
-            pass
-
-    def empty(self, index):
-        portfolio = self.portfolios.pop([index])
+            print(self.cur_day.strftime("%d-%m-%Y") + " is holiday")
+            daily_pl = {"date": self.cur_day, "pl": self.daily_pls[-1]["pl"], "balance": self.daily_pls[-1]['balance'] }
+            #daily_pl = self.daily_pls[-1]
+            #daily_pl["date"] = self.cur_day
+            # print(daily_pl)
+            self.daily_pls.append(daily_pl)
+            # print(self.daily_pls[-1])
+            # print(self.daily_pls[-2])
     
     def executeOrder(self, order):
         if order["buy"] is True:
             self.balance -= order["amount"]
-            new_transaction = {"ticket": order["ticket"], "date": order["date"], "amount": "-" + str(order["amount"]), "remaining_capital": str(self.balance)}
+            new_transaction = {"ticker": order["ticker"], "date": order["date"], "amount": "-" + str(order["amount"]), "remaining_capital": str(self.balance)}
         else:
             self.balance += order["amount"]
-            new_transaction =  {"ticket": order["ticket"], "date": order["date"], "amount": "+" + str(order["amount"]), "remaining_capital": str(self.balance)}
+            new_transaction =  {"ticker": order["ticker"], "date": order["date"], "amount": "+" + str(order["amount"]), "remaining_capital": str(self.balance)}
         self.transactions.append(new_transaction)
 
-    def longShort(self, ticket, date, score):
+    def longShort(self, ticker, date, score):
         if score >= self.bmark_score:
             # long
             # get buy_date, sell_date, buy_share_price, sell_share_price
-            print(ticket + " score of " + str(score) + " is greater than " + str(self.bmark_score))
-            end_date = date + datetime.timedelta(days=7)
+            print(ticker + " score of " + str(score) + " is greater than " + str(self.bmark_score))
             #print(date, end_date)
-            buy_date, buy_share_price = self.get_stock_data(ticket, date, end_date)
+            buy_date, buy_share_price = self.get_stock_data(ticker, date, date + datetime.timedelta(days=7))
             print(buy_date, buy_share_price)
-            sell_date, sell_share_price = self.get_stock_data(ticket, buy_date + datetime.timedelta(days=7), buy_date + datetime.timedelta(days=14))
+            sell_date, sell_share_price = self.get_stock_data(ticker, buy_date + datetime.timedelta(days=31), buy_date + datetime.timedelta(days=38))
             
-            self.long(ticket, buy_date, buy_share_price, sell_date, sell_share_price)
+            self.long(ticker, buy_date, buy_share_price, sell_date, sell_share_price)
         else:
             # short
-            print(ticket + " score of " + str(score) + " is not greater than " + str(self.bmark_score))
-
-if __name__ == "__main__":
-    ESG_score_2017  = pd.read_csv("../ESG_score/ESG_data_2017.csv")
-    ESG_score_2018  = pd.read_csv("../ESG_score/ESG_data_2018.csv")
-    ESG_score_2019  = pd.read_csv("../ESG_score/ESG_data_2019.csv")
-    ESG_score_2020  = pd.read_csv("../ESG_score/ESG_data_2020.csv")
-    ESG_score_2021  = pd.read_csv("../ESG_score/ESG_data_2021.csv")
-    ESG_score_2022  = pd.read_csv("../ESG_score/ESG_data_2022.csv")
-
-    ESG_report = pd.read_csv("../ESG_report/concatenatedESGData.csv")
-    ESG_report = ESG_report.drop(['Unnamed: 0'], axis=1)
-
-    ESG_report['ESG_2017_rel_date'] = pd.to_datetime(ESG_report['ESG_2017_rel_date'], format='%d/%m/%Y')
-    ESG_report['ESG_2018_rel_date'] = pd.to_datetime(ESG_report['ESG_2018_rel_date'], format='%d/%m/%Y')
-    ESG_report['ESG_2019_rel_date'] = pd.to_datetime(ESG_report['ESG_2019_rel_date'], format='%d/%m/%Y')
-    ESG_report['ESG_2020_rel_date'] = pd.to_datetime(ESG_report['ESG_2020_rel_date'], format='%d/%m/%Y')
-    ESG_report['ESG_2021_rel_date'] = pd.to_datetime(ESG_report['ESG_2021_rel_date'], format='%d/%m/%Y')
-    ESG_report['ESG_2022_rel_date'] = pd.to_datetime(ESG_report['ESG_2022_rel_date'], format='%d/%m/%Y')
-    ESG_report['ESG_2023_rel_date'] = pd.to_datetime(ESG_report['ESG_2023_rel_date'], format='%d/%m/%Y')
-    ESG_report = ESG_report.drop(563)
-
-    portfolio = Portfolio(1000000, 10, 10, ESG_report, ESG_score_2017, ESG_score_2018, ESG_score_2019, ESG_score_2020, ESG_score_2021, ESG_score_2022)
-    
-    print(portfolio.get_balance())
-
-    print("______________start______________")
-
-    portfolio.strategy()
-    # portfolio.set_balance(100)
-
-    print("_____________end______________")
-
-    print(portfolio.get_balance())
-
-    transactions = portfolio.get_transactions()
-    for i in transactions:
-        print(i)
-        print("________________________________")
+            print(ticker + " score of " + str(score) + " is not greater than " + str(self.bmark_score))
