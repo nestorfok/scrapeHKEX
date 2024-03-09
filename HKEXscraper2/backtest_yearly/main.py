@@ -25,13 +25,15 @@ if __name__ == "__main__":
     ESG_report['ESG_2023_rel_date'] = pd.to_datetime(ESG_report['ESG_2023_rel_date'], format='%d/%m/%Y')
     ESG_report = ESG_report.drop(563)
 
-    portfolio = Portfolio(1000000, 10, 30, ESG_report, ESG_score_2017, ESG_score_2018, ESG_score_2019, ESG_score_2020, ESG_score_2021, ESG_score_2022)
+    portfolio = Portfolio(init_cap=1000000, size=10, bmark_score=30, report=ESG_report, score_2017=ESG_score_2017, 
+                          score_2018=ESG_score_2018, score_2019=ESG_score_2019, score_2020=ESG_score_2020, 
+                          score_2021=ESG_score_2021, score_2022=ESG_score_2022)
     
     print(portfolio.get_balance())
 
     print("______________start______________")
 
-    portfolio.strategy()
+    portfolio.strategy(start_date='01-01-2018', end_date='31-12-2018')
     # portfolio.set_balance(100)
 
     print("_____________end________________")
