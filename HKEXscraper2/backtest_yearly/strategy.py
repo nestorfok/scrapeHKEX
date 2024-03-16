@@ -19,13 +19,11 @@ class Strategy:
         self.score_2022 = score_2022
         self.cur_day = None
 
-        self.broker = Broker()
+        self.broker = Broker(file_name="trading_holidays.txt")
         self.stock_account = StockAccount(init_cap=init_cap)
 
-        self.trading_holidays = []
 
-
-    def strategy(self, start_date, end_date):
+    def ESGstrategy1(self, start_date, end_date):
         start_date = datetime.datetime.strptime(start_date, '%d-%m-%Y').date()
         end_date = datetime.datetime.strptime(end_date, '%d-%m-%Y').date()
         self.cur_day = start_date
@@ -36,7 +34,6 @@ class Strategy:
 
             if self.broker.is_trading_day(self.cur_day) is False:
                 #print(self.cur_day.strftime("%d-%m-%Y") + " is not trading!")
-                self.trading_holidays.append(self.cur_day)
                 self.cur_day += datetime.timedelta(days=1)
                 # time.sleep(1)
                 continue
