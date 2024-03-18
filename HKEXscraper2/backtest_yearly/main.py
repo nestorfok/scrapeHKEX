@@ -33,8 +33,8 @@ if __name__ == "__main__":
 
     print("______________start______________")
 
-    # strategy.strategy(start_date='01-01-2018', end_date='31-12-2018')
-    # portfolio.set_balance(100)
+    strategy.strategy(start_date='01-01-2018', end_date='31-12-2018')
+    portfolio.set_balance(100)
 
     print("_____________end________________")
 
