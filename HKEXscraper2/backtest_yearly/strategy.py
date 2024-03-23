@@ -2,26 +2,49 @@ import datetime
 import math
 from broker import Broker
 from stockAccount import StockAccount
+import pandas as pd
 import time
 
 class Strategy:
     
-    def __init__(self, init_cap, size, bmark_score, report, score_2017, score_2018, score_2019, score_2020, score_2021, score_2022):
+    def __init__(self, init_cap, size, bmark, bmark_score):
         self.size = size # 10
+
+        self.bmark = bmark
+
         self.bmark_score = bmark_score # 30
-        self.ESG_report = report
-        self.report = report
-        self.score_2017 = score_2017
-        self.score_2018 = score_2018
-        self.score_2019 = score_2019
-        self.score_2020 = score_2020
-        self.score_2021 = score_2021
-        self.score_2022 = score_2022
+
+        self.__import_data()
+
         self.cur_day = None
 
         self.broker = Broker(file_name="trading_holidays.txt")
         self.stock_account = StockAccount(init_cap=init_cap)
 
+
+    def __import_data(self):
+        self.score_2017  = pd.read_csv("../ESG_score/ESG_data_2017.csv")
+        self.score_2018  = pd.read_csv("../ESG_score/ESG_data_2018.csv")
+        self.score_2019  = pd.read_csv("../ESG_score/ESG_data_2019.csv")
+        self.score_2020  = pd.read_csv("../ESG_score/ESG_data_2020.csv")
+        self.score_2021  = pd.read_csv("../ESG_score/ESG_data_2021.csv")
+        self.score_2022  = pd.read_csv("../ESG_score/ESG_data_2022.csv")
+
+        self.report = pd.read_csv("../ESG_report/concatenatedESGData.csv")
+        self.__modify_report()
+
+    def __modify_report(self):
+        self.report = self.report.drop(['Unnamed: 0'], axis=1)
+
+        self.report['ESG_2017_rel_date'] = pd.to_datetime(self.report['ESG_2017_rel_date'], format='%d/%m/%Y')
+        self.report['ESG_2018_rel_date'] = pd.to_datetime(self.report['ESG_2018_rel_date'], format='%d/%m/%Y')
+        self.report['ESG_2019_rel_date'] = pd.to_datetime(self.report['ESG_2019_rel_date'], format='%d/%m/%Y')
+        self.report['ESG_2020_rel_date'] = pd.to_datetime(self.report['ESG_2020_rel_date'], format='%d/%m/%Y')
+        self.report['ESG_2021_rel_date'] = pd.to_datetime(self.report['ESG_2021_rel_date'], format='%d/%m/%Y')
+        self.report['ESG_2022_rel_date'] = pd.to_datetime(self.report['ESG_2022_rel_date'], format='%d/%m/%Y')
+        self.report['ESG_2023_rel_date'] = pd.to_datetime(self.report['ESG_2023_rel_date'], format='%d/%m/%Y')
+
+        self.report = self.report.drop(563)
 
     def ESGstrategy1(self, start_date, end_date):
         start_date = datetime.datetime.strptime(start_date, '%d-%m-%Y').date()
@@ -52,34 +75,34 @@ class Strategy:
                         #time.sleep(100)
                         if year == 2017:
                             #print("yes")
-                            score = self.score_2017.loc[self.score_2017['file_name'] == stock_code]['positive']
+                            score = self.score_2017.loc[self.score_2017['file_name'] == stock_code][self.bmark]
                             score = score.values[0]
                             if score >= self.bmark_score and len(self.stock_account.get_portfolios()) < self.size:
                                 self.long(ticker=stock_code, date=self.cur_day)
                             break
                         elif year == 2018:
                             #print("yes")
-                            score = self.score_2018.loc[self.score_2018['file_name'] == stock_code]['positive']
+                            score = self.score_2018.loc[self.score_2018['file_name'] == stock_code][self.bmark]
                             if len(score) != 0 and score.values[0] >= self.bmark_score and len(self.stock_account.get_portfolios()) < self.size:
                                 self.long(ticker=stock_code, date=self.cur_day)
                             break
                         elif year == 2019:
-                            score = self.score_2019.loc[self.score_2019['file_name'] == stock_code]['positive']
+                            score = self.score_2019.loc[self.score_2019['file_name'] == stock_code][self.bmark]
                             if len(score) != 0 and score.values[0] >= self.bmark_score and len(self.stock_account.get_portfolios()) < self.size:
                                 self.long(ticker=stock_code, date=self.cur_day)
                             break
                         elif year == 2020:
-                            score = self.score_2020.loc[self.score_2020['file_name'] == stock_code]['positive']
+                            score = self.score_2020.loc[self.score_2020['file_name'] == stock_code][self.bmark]
                             if len(score) != 0 and score.values[0] >= self.bmark_score and len(self.stock_account.get_portfolios()) < self.size:
                                 self.long(ticker=stock_code, date=self.cur_day)
                             break
                         elif year == 2021:
-                            score = self.score_2021.loc[self.score_2021['file_name'] == stock_code]['positive']
+                            score = self.score_2021.loc[self.score_2021['file_name'] == stock_code][self.bmark]
                             if len(score) != 0 and score.values[0] >= self.bmark_score and len(self.stock_account.get_portfolios()) < self.size:
                                 self.long(ticker=stock_code, date=self.cur_day)
                             break
                         elif year == 2022:
-                            score = self.score_2022.loc[self.score_2022['file_name'] == stock_code]['positive']
+                            score = self.score_2022.loc[self.score_2022['file_name'] == stock_code][self.bmark]
                             if len(score) != 0 and score.values[0] >= self.bmark_score and len(self.stock_account.get_portfolios()) < self.size:
                                 self.long(ticker=stock_code, date=self.cur_day)
                             break
