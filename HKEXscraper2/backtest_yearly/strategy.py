@@ -31,7 +31,7 @@ class Strategy:
         self.score_2022  = pd.read_csv("../ESG_score/ESG_data_2022.csv")
 
         self.report = pd.read_csv("../ESG_report/concatenatedESGData.csv")
-        self.report = self.report.drop(['Unnamed: 0'], axis=1)
+        # self.report = self.report.drop(['Unnamed: 0'], axis=1)
         self.__modify_report()
 
     def __modify_report(self):
