@@ -31,6 +31,7 @@ class Strategy:
         self.score_2022  = pd.read_csv("../ESG_score/ESG_data_2022.csv")
 
         self.report = pd.read_csv("../ESG_report/concatenatedESGData.csv")
+        self.report = self.report.drop(['Unnamed: 0'], axis=1)
         self.__modify_report()
 
     def __modify_report(self):
@@ -44,7 +45,7 @@ class Strategy:
         self.report['ESG_2022_rel_date'] = pd.to_datetime(self.report['ESG_2022_rel_date'], format='%d/%m/%Y')
         self.report['ESG_2023_rel_date'] = pd.to_datetime(self.report['ESG_2023_rel_date'], format='%d/%m/%Y')
 
-        self.report = self.report.drop(563)
+        #self.report = self.report.drop(563)
 
     def ESGstrategy1(self, start_date, end_date):
         start_date = datetime.datetime.strptime(start_date, '%d-%m-%Y').date()
